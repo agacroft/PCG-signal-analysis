@@ -20,8 +20,7 @@ def read_wavefile(path):
     return frames, params
 
 
-def plot_wave_signal(signal, params):
-    Fs = params[2]
+def plot_wave_signal(signal, Fs):
     T = 1.0/Fs
     length = len(signal)
     t = np.arange(0, length, 1)
@@ -31,7 +30,3 @@ def plot_wave_signal(signal, params):
     plt.title('PCG signal')
     plt.plot(t, signal)
     
-    
-filepath = '201101070538.wav'
-signal, params = read_wavefile(filepath)
-plot_wave_signal(signal, params)
