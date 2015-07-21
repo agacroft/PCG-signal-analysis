@@ -7,8 +7,8 @@ Y.Wei
 @author: Agnieszka Kaczmarczyk
 """
 
-delta = 0.0002
-l = 0.0002
+delta = 0.02
+l = 0.2
 
 import wave_operations
 import numpy as np
@@ -72,7 +72,6 @@ def calculate_mi(c, I_moment, params):
         
     return mi
     
-
 def calculate_I_mi_t_dash(c, params):
     start_frame = (int)(l * params[2])
     stop_frame = params[3] - start_frame
@@ -97,3 +96,49 @@ def calculate_I_mi_t_dash(c, params):
     
     return I_t_dash, mi_t_dash
         
+def calculate_S(signal, params, t, k):
+    S = 0
+    T = np.arange(0, t * params[2])
+    for tau in T:
+        S = S + ((signal[tau])**k)
+        
+    return S
+    
+def calculate_delta_S(signal, params, t, k):
+    delta_frame = (int)(delta * params[2])
+
+    return calculate_S(signal, params, (t + delta_frame), k) - calculate_S(signal, params, (t - delta_frame), k)
+    
+def calculate_J(signal, params, c, t, k):
+    print 'J'
+    print t
+    print '\n'
+    J = 0
+    delta_frame = (int)(delta * params[2])
+    
+    for tau in range(t - delta_frame, t + delta_frame):
+        J = J + ((tau**k) * c[tau])
+        
+    return J / (2 * delta)
+    
+def calculate_delta_J(signal, params, c, t, k):
+    print 'delta J'
+    print t
+    print '\n'
+    delta_frame = (int)(l * params[2])
+
+    return calculate_J(signal, params, c, (t + delta_frame), k) - calculate_J(signal, params, c, (t - delta_frame), k)
+    
+def calculate_I_moment_mi_2(signal, params, c):
+    start_frame = (int)(2 * l * params[2])
+    stop_frame = params[3] - start_frame
+
+    I_moment_2 = np.zeros(params[3])
+    mi_2 = np.zeros(params[3])
+    
+    for t in range(start_frame, stop_frame):
+        I_moment_2[t] = (calculate_delta_J(signal, params, c, t, 2)) - (2 * calculate_delta_J(signal, params, c, t, 1) * t) + (calculate_delta_J(signal, params, c, t, 0) * (t**2))
+        mi_2[t] = I_moment_2[t] / (calculate_delta_J(signal, params, c, t, 0) * t)
+    
+    return I_moment_2, mi_2
+    
