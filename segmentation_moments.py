@@ -10,8 +10,6 @@ Y.Wei
 delta = 0.05
 l = 0.5
 
-import wave_operations as wo
-import preprocessing as pr
 import numpy as np
 
 def prepare_scale_parameters (freq):
