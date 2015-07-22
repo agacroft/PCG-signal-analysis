@@ -36,7 +36,7 @@ def shannon_energy_i(x):
     
 def shannon_energy_envelope(signal_in, freq):
     shannon_envelope = np.zeros(len(signal_in))
-    delta_t = 0.01
+    delta_t = 0.02
     delta_t_frame = int(delta_t * freq)
     N = 2 * delta_t_frame + 1
     
