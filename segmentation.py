@@ -34,7 +34,7 @@ def moving_average(signal_in, n = 100) :
 def shannon_energy_i(x):
     return ((-(x**2)) * (logarithm(x**2)))
     
-def shannon_energy_envelope(signal_in, freq):
+def envelope(signal_in, freq):
     shannon_envelope = np.zeros(len(signal_in))
     delta_t = 0.02
     delta_t_frame = int(delta_t * freq)
@@ -51,3 +51,14 @@ def normalize_shannon(shannon_energy):
     m = np.average(shannon_energy)
     std = np.std(shannon_energy)
     return [((x - m)/ std) for x in shannon_energy]
+
+def heart_rate(signal, freq):
+    autocorr = np.correlate(signal, signal, mode = 'full')
+    autocorr = autocorr[autocorr.size/2:]
+    autocorr = energy(autocorr)
+    autocorr = envelope(autocorr, freq)
+    autocorr[0:(0.1 * freq)] = 0
+    autocorr = abs(autocorr)
+    index = autocorr.argmax(axis=0)
+    heart_rate = 60 * freq / index
+    return heart_rate
