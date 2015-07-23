@@ -5,8 +5,6 @@ Segmentation based on Shannon Energy.
 @author: Agnieszka Kaczmarczyk
 """
 
-import preprocessing as pr
-import wave_operations as wo
 import numpy as np
 
 def energy(signal_in):
@@ -58,6 +56,7 @@ def heart_rate(signal, freq):
     autocorr = energy(autocorr)
     autocorr = envelope(autocorr, freq)
     autocorr[0:(0.1 * freq)] = 0
+    autocorr[(1.5 * freq):] = 0
     autocorr = abs(autocorr)
     index = autocorr.argmax(axis=0)
     heart_rate = 60 * freq / index

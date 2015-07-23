@@ -28,8 +28,10 @@ signal_PCG = pr.normalize(signal_PCG)
 cutoff = 80
 signal_PCG = pr.butter_lowpass_filter(signal_PCG, cutoff, freq, 1)
 
+heart_rate = segm.heart_rate(signal_PCG, freq)
+
 # Shannon energy envelope
-shannon_envelope = segm.shannon_energy_envelope(signal_PCG, freq)
+shannon_envelope = segm.envelope(signal_PCG, freq)
 #wo.plot_wave_signal(shannon_envelope, freq)
 
 threshold.determine_threshold(shannon_envelope, freq)
