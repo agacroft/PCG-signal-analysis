@@ -6,6 +6,7 @@ Segmentation based on Shannon Energy.
 """
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 def energy(signal_in):
     return [x**2 for x in signal_in]
@@ -49,6 +50,25 @@ def normalize_shannon(shannon_energy):
     m = np.average(shannon_energy)
     std = np.std(shannon_energy)
     return [((x - m)/ std) for x in shannon_energy]
+    
+def histogram_denoising(signal_in):
+    n_bins = 100
+    
+    signal_out = np.copy(signal_in)
+    
+    n, bins, patches = plt.hist(abs(signal_out), n_bins, normed=1, histtype='step', cumulative=True)
+
+    index = 0
+    thr = 0
+    while n[index] < 0.9:
+        thr = bins[index]
+        index = index + 1
+    
+    for index in range(0, len(signal_out)):
+        if abs(signal_out[index]) < thr:
+            signal_out[index] = 0
+            
+    return signal_out
 
 def heart_rate(signal, freq):
     autocorr = np.correlate(signal, signal, mode = 'full')
