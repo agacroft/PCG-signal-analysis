@@ -11,16 +11,20 @@ import wave_operations as wo
 import matplotlib.pyplot as plt
 import numpy as np
 
+threshold_step = 0.1
+threshold_start = 0.1
+threshold_stop = 0.8
+
 def determine_threshold(signal, freq):    
     
     signal = pr.normalize(signal)
-    is_above = False
     i = 0
     
-    thresholds = np.arange(0.1, 0.8, 0.05)
+    thresholds = np.arange(threshold_start, threshold_stop, threshold_step)
     
     for threshold in thresholds:
         under = 0
+        is_above = False
         begginings = []
         endings = []
         i = 0
@@ -30,17 +34,23 @@ def determine_threshold(signal, freq):
                 if is_above == True:
                     is_above = False
                     begginings.append(i)
-                    # dodac poczatek tonu
             else:
                 if is_above == False:
                     is_above = True
-                    endings.append(i)
+                    if len(begginings) > 0:
+                        endings.append(i)
             i = i + 1
-                    # dodac koniec tonu
+        begginings, endings = investigate_tone_boundaries(begginings, endings)
         n = len(begginings)
         rate = n / (len(signal) * 1.0/ freq) * 30
-        # strzelac w freq = 140
-        print str(threshold) + ': ' + str(under * 1.0 / len(signal)) + ' ' + str(n) + ' ' + str(rate)
         
-        wo.plot_wave_signal(signal, freq)
-        plt.axhline(y = threshold, xmin = 0, xmax = 3, c = "red", linewidth = 0.5, zorder = 0)
+        print str(threshold) + ': ' + str(under * 1.0 / len(signal)) + ' ' + str(n) + ' ' + str(rate)    
+        
+#        wo.plot_wave_signal(signal, freq)
+#        plt.axhline(y = threshold, xmin = 0, xmax = 3, c = "red", linewidth = 0.5, zorder = 0)
+        
+def investigate_tone_boundaries(start, stop):
+    if len(start) > len(stop):
+        start = np.delete(start, len(start) - 1)
+        
+    return start, stop
