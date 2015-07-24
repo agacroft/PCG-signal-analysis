@@ -56,7 +56,9 @@ def histogram_denoising(signal_in):
     
     signal_out = np.copy(signal_in)
     
+    plt.figure()
     n, bins, patches = plt.hist(abs(signal_out), n_bins, normed=1, histtype='step', cumulative=True)
+    plt.close()
 
     index = 0
     thr = 0
