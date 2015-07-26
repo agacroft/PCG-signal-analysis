@@ -11,16 +11,19 @@ import wave_operations as wo
 import matplotlib.pyplot as plt
 import numpy as np
 
-threshold_step = 0.1
-threshold_start = 0.1
-threshold_stop = 0.8
+threshold_step = 0.05
+threshold_start = 0.05
+threshold_stop = 0.7
 
-def determine_threshold(signal, freq):    
+def determine_threshold(signal, freq, heart_rate):    
     
     signal = pr.normalize(signal)
     i = 0
     
     thresholds = np.arange(threshold_start, threshold_stop, threshold_step)
+    thr = 0
+    begginings = []
+    endings = []
     
     for threshold in thresholds:
         under = 0
@@ -45,11 +48,25 @@ def determine_threshold(signal, freq):
         rate = n / (len(signal) * 1.0/ freq) * 30
         
         print str(threshold) + ': ' + str(under * 1.0 / len(signal)) + ' ' + str(n) + ' ' + str(rate)    
+          
+        if 0.9 * heart_rate <= rate and 1.1 * heart_rate >= rate:
+            print str(threshold) + ' - HERE!'
+            thr = threshold
         
-#        wo.plot_wave_signal(signal, freq)
-#        plt.axhline(y = threshold, xmin = 0, xmax = 3, c = "red", linewidth = 0.5, zorder = 0)
+            wo.plot_wave_signal(signal, freq)
+            plt.axhline(y = threshold, xmin = 0, xmax = 3, c = "red", linewidth = 0.5, zorder = 0)
         
-def investigate_tone_boundaries(start, stop):
+            break 
+        
+    return thr, begginings, endings
+    
+# Check if signal doesn't start or stop while being inside the peak.
+def investigate_tone_boundaries(begginings, endings):
+    start = np.copy(begginings)
+    stop = np.copy(endings)
+    if start[0] < stop[0]:
+        stop = stop[1:]
+    
     if len(start) > len(stop):
         start = np.delete(start, len(start) - 1)
         
