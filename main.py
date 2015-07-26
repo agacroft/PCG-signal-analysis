@@ -21,7 +21,7 @@ freq = 4000
 my_path = os.getcwd() + '\\normal signals'
 wave_files = [ f for f in listdir(my_path) if isfile(join(my_path,f)) ]
 
-for wave_file in wave_files[0:20]:
+for wave_file in wave_files[6:10]:
     wave_file_path = my_path + '\\' + wave_file
     print wave_file_path
     signal_PCG, params = wo.read_wavefile(wave_file_path)
@@ -35,24 +35,22 @@ for wave_file in wave_files[0:20]:
     cutoff = 100
     signal_PCG = pr.butter_lowpass_filter(signal_PCG, cutoff, freq, 1)
     
-    signal_PCG2 = segm.histogram_denoising(signal_PCG)
+    # Denoising histogram using histogram method.
+    signal_PCG = segm.histogram_denoising(signal_PCG)
     
-    heart_rate = segm.heart_rate(signal_PCG, freq)
-    heart_rate2 = segm.heart_rate(signal_PCG2, freq) 
+    # Determine heart rate.
+    heart_rate = segm.heart_rate(signal_PCG, freq) 
 
     # Shannon energy envelope
     shannon_envelope = segm.envelope(signal_PCG, freq)
-    shannon_envelope2 = segm.envelope(signal_PCG2, freq)
     
-    threshold.determine_threshold(shannon_envelope, freq)
-    threshold.determine_threshold(shannon_envelope2, freq)
+    thr, starts, stops = threshold.determine_threshold(shannon_envelope, freq, heart_rate)
     
     T = 1.0/freq
     length = len(signal_PCG)
     t = np.arange(0, length, 1)
     t = t * T
-    f, axarr = plt.subplots(3, sharex=True)
+    f, axarr = plt.subplots(2, sharex=True)
     axarr[0].plot(t, signal_PCG)
-    axarr[0].set_title(wave_file)
+    axarr[0].set_title(wave_file + ' ' + str(heart_rate))
     axarr[1].plot(t, shannon_envelope)
-    axarr[2].plot(t, shannon_envelope2)
