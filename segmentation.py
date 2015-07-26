@@ -76,9 +76,9 @@ def heart_rate(signal, freq):
     autocorr = np.correlate(signal, signal, mode = 'full')
     autocorr = autocorr[autocorr.size/2:]
     autocorr = energy(autocorr)
-    autocorr = envelope(autocorr, freq)
-    autocorr[0:(0.1 * freq)] = 0
-    autocorr[(1.5 * freq):] = 0
+    autocorr = envelope(autocorr, freq, 0.04)
+    autocorr[0:(0.4 * freq)] = 0
+    autocorr[(1.2 * freq):] = 0
     autocorr = abs(autocorr)
     index = autocorr.argmax(axis=0)
     heart_rate = 60 * freq / index
