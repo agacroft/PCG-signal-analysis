@@ -64,10 +64,10 @@ def determine_threshold(signal, freq, heart_rate):
 def investigate_tone_boundaries(begginings, endings):
     start = np.copy(begginings)
     stop = np.copy(endings)
-    if start[0] < stop[0]:
+    if start[0] > stop[0]:
         stop = stop[1:]
     
     if len(start) > len(stop):
-        start = np.delete(start, len(start) - 1)
+        start = start[0:len(start) - 1]
         
     return start, stop
