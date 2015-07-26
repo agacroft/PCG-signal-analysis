@@ -48,7 +48,16 @@ def determine_threshold(signal, freq, heart_rate):
         
         print str(threshold) + ': ' + str(under * 1.0 / len(signal)) + ' ' + str(n) + ' ' + str(rate)    
           
-        if 0.9 * heart_rate <= rate and 1.1 * heart_rate >= rate:
+        if ((1 - rate_confidence) * heart_rate <= rate and (1 + rate_confidence) * heart_rate >= rate):
+            print str(threshold) + ' - HERE!'
+            thr = threshold
+        
+            wo.plot_wave_signal(signal, freq)
+            plt.axhline(y = threshold, xmin = 0, xmax = 3, c = "red", linewidth = 0.5, zorder = 0)
+        
+            break 
+        elif ((2 - rate_confidence) * heart_rate <= rate and (2 + rate_confidence) * heart_rate >= rate):
+            heart_rate = 2 * heart_rate
             print str(threshold) + ' - HERE!'
             thr = threshold
         
@@ -57,7 +66,7 @@ def determine_threshold(signal, freq, heart_rate):
         
             break 
         
-    return thr, begginings, endings
+    return thr, begginings, endings, heart_rate
     
 # Check if signal doesn't start or stop while being inside the peak.
 def investigate_tone_boundaries(begginings, endings):
