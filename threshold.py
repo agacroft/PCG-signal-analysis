@@ -36,12 +36,11 @@ def determine_threshold(signal, freq, heart_rate):
                 under = under + 1
                 if is_above == True:
                     is_above = False
-                    begginings.append(i)
+                    endings.append(i)
             else:
                 if is_above == False:
                     is_above = True
-                    if len(begginings) > 0:
-                        endings.append(i)
+                    begginings.append(i)
             i = i + 1
         begginings, endings = investigate_tone_boundaries(begginings, endings)
         n = len(begginings)
