@@ -53,7 +53,9 @@ for wave_file in wave_files[0:1]:
     boundaries = s12.find_cycle_start(signal_PCG, starts, heart_rate, freq)   
     s1, s2 = s12.determine_s12(starts, stops, boundaries, peaks_energy)
     
-    parameters = Parameters(signal_PCG_original, freq, heart_rate, s1, s2, starts, stops)      
+    parameters = Parameters(signal_PCG_original, freq, heart_rate, s1, s2, starts, stops)   
+    parameters.s1_fft()
+    parameters.s2_fft()
     
     T = 1.0/freq
     length = len(signal_PCG)
