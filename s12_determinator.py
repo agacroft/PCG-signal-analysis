@@ -30,10 +30,12 @@ def find_cycle_start(signal_in, starts, heart_rate, freq):
     cycles_boundaries[len(cycles_boundaries) - 1] = signal_end - 1
     return cycles_boundaries
     
-def determine_s12(starts, stops, boundaries):
+def determine_s12(starts, stops, boundaries, peaks_energy):
     ranges_n = len(boundaries) - 1
     peaks_n = len(starts)
     peaks_lengths = [b - a for a,b in zip(starts, stops)]
+    peaks_weights = [0.3 * e + 0.7 * l for e,l in zip(peaks_energy, peaks_lengths)]    
+    
     s1 = []
     s2 = []
     
@@ -59,11 +61,11 @@ def determine_s12(starts, stops, boundaries):
                 i = i + 1
    
         if stop_index - start_index >= 1:
-            s1_index = np.argmax(peaks_lengths[start_index : stop_index + 1], axis = 0) + start_index        
+            s1_index = np.argmax(peaks_weights[start_index : stop_index + 1], axis = 0) + start_index        
             s1.append(s1_index)
-            peaks_lengths[s1_index] = 0
-            s2_index = np.argmax(peaks_lengths[start_index : stop_index + 1], axis = 0) + start_index     
+            peaks_weights[s1_index] = 0
+            s2_index = np.argmax(peaks_weights[start_index : stop_index + 1], axis = 0) + start_index     
             s2.append(s2_index)
-            peaks_lengths[s2_index] = 0
+            peaks_weights[s2_index] = 0
         
     return s1, s2
