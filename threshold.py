@@ -12,8 +12,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 threshold_step = 0.05
-threshold_start = 0.05
+threshold_start = 0.1
 threshold_stop = 0.7
+rate_confidence = 0.21
 
 def determine_threshold(signal, freq, heart_rate):    
     
@@ -52,8 +53,8 @@ def determine_threshold(signal, freq, heart_rate):
             print str(threshold) + ' - HERE!'
             thr = threshold
         
-            wo.plot_wave_signal(signal, freq)
-            plt.axhline(y = threshold, xmin = 0, xmax = 3, c = "red", linewidth = 0.5, zorder = 0)
+#            wo.plot_wave_signal(signal, freq)
+#            plt.axhline(y = threshold, xmin = 0, xmax = 3, c = "red", linewidth = 0.5, zorder = 0)
         
             break 
         elif ((2 - rate_confidence) * heart_rate <= rate and (2 + rate_confidence) * heart_rate >= rate):
@@ -61,12 +62,17 @@ def determine_threshold(signal, freq, heart_rate):
             print str(threshold) + ' - HERE!'
             thr = threshold
         
-            wo.plot_wave_signal(signal, freq)
-            plt.axhline(y = threshold, xmin = 0, xmax = 3, c = "red", linewidth = 0.5, zorder = 0)
+#            wo.plot_wave_signal(signal, freq)
+#            plt.axhline(y = threshold, xmin = 0, xmax = 3, c = "red", linewidth = 0.5, zorder = 0)
         
             break 
         
-    return thr, begginings, endings, heart_rate
+    n = len(begginings)   
+    peaks_energy = np.zeros(n)
+    for index in range(0, n - 1):
+        peaks_energy[index] = sum(signal[begginings[index] : endings[index]])
+        
+    return thr, begginings, endings, heart_rate, peaks_energy
     
 # Check if signal doesn't start or stop while being inside the peak.
 def investigate_tone_boundaries(begginings, endings):
