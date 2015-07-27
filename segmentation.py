@@ -62,7 +62,7 @@ def histogram_denoising(signal_in):
 
     index = 0
     thr = 0
-    while n[index] < 0.97:
+    while n[index] < 0.9:
         thr = bins[index]
         index = index + 1
     
