@@ -12,6 +12,7 @@ import preprocessing as pr
 import segmentation as segm
 import threshold
 import s12_determinator as s12
+from parametrization import Parameters
 import os
 from os import listdir
 from os.path import isfile, join
@@ -22,7 +23,7 @@ freq = 4000
 my_path = os.getcwd() + '\\normal signals'
 wave_files = [ f for f in listdir(my_path) if isfile(join(my_path,f)) ]
 
-for wave_file in wave_files[0:0]:
+for wave_file in wave_files[0:1]:
     wave_file_path = my_path + '\\' + wave_file
     print wave_file_path
     signal_PCG, params = wo.read_wavefile(wave_file_path)
@@ -31,8 +32,6 @@ for wave_file in wave_files[0:0]:
     
     # Preprocessing of the signal: normalization.
     signal_PCG = pr.normalize(signal_PCG)
-    
-    heart_rate_before = segm.heart_rate(signal_PCG, freq)
     
     signal_PCG_original = np.copy(signal_PCG)
     
@@ -45,8 +44,6 @@ for wave_file in wave_files[0:0]:
     
     # Determine heart rate.
     heart_rate = segm.heart_rate(signal_PCG, freq) 
-    
-    print 'HR before: ' + str(heart_rate_before) + ' after: ' + str(heart_rate)
 
     # Shannon energy envelope
     shannon_envelope = segm.envelope(signal_PCG, freq)
@@ -55,6 +52,8 @@ for wave_file in wave_files[0:0]:
     
     boundaries = s12.find_cycle_start(signal_PCG, starts, heart_rate, freq)   
     s1, s2 = s12.determine_s12(starts, stops, boundaries, peaks_energy)
+    
+    parameters = Parameters(signal_PCG_original, freq, heart_rate, s1, s2, starts, stops)      
     
     T = 1.0/freq
     length = len(signal_PCG)
@@ -82,7 +81,7 @@ for wave_file in wave_files[0:0]:
 my_path = os.getcwd() + '\\murmurs'
 wave_files = [ fi for fi in listdir(my_path) if isfile(join(my_path,fi)) ]
 
-for wave_file in wave_files[0:10]:
+for wave_file in wave_files[0:0]:
     wave_file_path = my_path + '\\' + wave_file
     print wave_file_path
     signal_PCG, params = wo.read_wavefile(wave_file_path)
