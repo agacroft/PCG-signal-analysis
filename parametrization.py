@@ -75,10 +75,9 @@ class Parameters(object):
                 s1_indexes.append(s1)
         t12 = []
         for index in s1_indexes:
-            t12_candidate = (self.peak_starts[index+1] - self.peak_stops[index])
+            t12_candidate = (self.peak_starts[index+1] - self.peak_stops[index]) * 1.0 / self.freq
             if t12_candidate < (60.0 / self.heart_rate):
                 t12.append(t12_candidate)
-        print t12
         t12_mean = np.mean(t12)
         return t12_mean, t12_mean * 1.0 / ( 60.0 / self.heart_rate)
         
@@ -89,10 +88,9 @@ class Parameters(object):
                 s2_indexes.append(s2)
         t21 = []
         for index in s2_indexes:
-            t21_candidate = (self.peak_starts[index+1] - self.peak_stops[index])
+            t21_candidate = (self.peak_starts[index+1] - self.peak_stops[index]) * 1.0 / self.freq
             if t21_candidate < (60.0 / self.heart_rate):
                 t21.append(t21_candidate)
-        print t21
         t21_mean = np.mean(t21)
         return t21_mean, t21_mean * 1.0 / ( 60.0 / self.heart_rate)
         
