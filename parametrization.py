@@ -57,15 +57,15 @@ class Parameters(object):
             plt.title(i)
             
     def t1(self):
-        t1s = np.zeros(len(self.s1))
+        t1s = []
         for i in self.s1:
-            t1s[i] = (self.peak_stops[i] - self.peak_starts[i]) / self.freq
+            t1s.append((self.peak_stops[i] - self.peak_starts[i]) * 1.0 / self.freq)
         return np.mean(t1s)
         
     def t2(self):
-        t2s = np.zeros(len(self.s2))
+        t2s = []
         for i in self.s2:
-            t2s[i] = (self.peak_stops[i] - self.peak_starts[i]) / self.freq
+            t2s.append((self.peak_stops[i] - self.peak_starts[i]) * 1.0 / self.freq)
         return np.mean(t2s)
         
     def t12(self):
