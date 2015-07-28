@@ -9,7 +9,7 @@ Used parameters:
 - Wigner distribution of tones - not yet, not sure
 - STFT on whole signal - not yet
 - total power during systole (between end of S1 and start of S2)
-- Q-factor during systole - not yet,.
+- Q-factor during systole - not yet
 - t1 - S1 durarion
 - t2 - S2 duration
 - t12 - time between end of S1 and start of S2
@@ -122,7 +122,16 @@ class Parameters(object):
                 total_power = 0
                 for x in systole:
                     total_power = total_power + x**2
-                total_powers_systole.append(total_power)
+                half_cycle_frames = self.freq * (60.0 / self.heart_rate) / 2
+                half_cycle_frames_start = 0
+                if self.peak_stops[index] > half_cycle_frames:
+                    half_cycle_frames_start = self.peak_stops[index] - half_cycle_frames
+                cycle = self.signal[half_cycle_frames_start : self.peak_stops[index] + half_cycle_frames]           
+                total_power_cycle = 0
+                for x in cycle:
+                    total_power_cycle = total_power_cycle + x**2
+                # As percentage value of total power of the whole cycle
+                total_powers_systole.append(total_power / total_power_cycle)
         if not total_powers_systole:
             return 0
         else:
