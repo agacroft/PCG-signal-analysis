@@ -13,7 +13,7 @@ Used parameters:
 - t2 - S2 duration
 - t12 - time between end of S1 and start of S2
 - t21 - time between end of S2 and start of next S1
-- mean12 - maximum of means in regions between S1 - S2 and S2 - S1 - not yet
+- mean12 - maximum of means in regions between S1 - S2 and S2 - S1
 
 @author: Agnieszka Kaczmarczyk
 """
@@ -101,12 +101,41 @@ class Parameters(object):
                 s1_indexes.append(s1)
         total_powers_systole = []
         for index in s1_indexes:
-            if (self.peak_starts[index+1] - self.peak_stops[index]) < (60.0 / self.heart_rate):
+            if (self.peak_starts[index+1] - self.peak_stops[index]) * 1.0 / self.freq < (60.0 / self.heart_rate):      
                 systole = self.signal[self.peak_stops[index] : self.peak_starts[index + 1]]
                 total_power = 0
                 for x in systole:
                     total_power = total_power + x**2
-                    total_powers_systole.append(total_power)
-        total_power_mean = np.mean(total_powers_systole)
-        return total_power_mean
+                total_powers_systole.append(total_power)
+        if not total_powers_systole:
+            return 0
+        else:
+            total_power_mean = np.mean(total_powers_systole)
+            return total_power_mean
         
+    def mean12(self):
+        systole_indexes = []
+        for s1 in self.s1:
+            if (s1 + 1) in self.s2:
+                systole_indexes.append(s1)
+        systole_means = []
+        for index in systole_indexes:
+            if (self.peak_starts[index+1] - self.peak_stops[index]) * 1.0 / self.freq < (60.0 / self.heart_rate):
+                systole = self.signal[self.peak_stops[index] : self.peak_starts[index + 1]]
+                signal_mean = np.mean(systole)
+                systole_means.append(signal_mean)
+        systole_mean = np.mean(systole_means)      
+                
+        diastole_indexes = []
+        for s2 in self.s2:
+            if (s2 + 1) in self.s1:
+                diastole_indexes.append(s2)
+        diastole_means = []
+        for index in diastole_indexes:
+            if (self.peak_starts[index+1] - self.peak_stops[index]) * 1.0 / self.freq < (60.0 / self.heart_rate):
+                diastole = self.signal[self.peak_stops[index] : self.peak_starts[index + 1]]
+                signal_mean = np.mean(diastole)
+                diastole_means.append(signal_mean)
+        diastole_mean = np.mean(diastole_means)
+        
+        return max(systole_mean, diastole_mean)
