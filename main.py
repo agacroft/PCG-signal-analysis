@@ -45,7 +45,7 @@ for wave_file in wave_files[0:1]:
     # Determine heart rate.
     heart_rate = segm.heart_rate(signal_PCG, freq) 
 
-    # Shannon energy envelope
+    # Shannon energy envelope.
     shannon_envelope = segm.envelope(signal_PCG, freq)
     
     thr, starts, stops, heart_rate, peaks_energy = threshold.determine_threshold(shannon_envelope, freq, heart_rate)

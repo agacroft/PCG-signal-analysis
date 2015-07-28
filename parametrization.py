@@ -5,10 +5,11 @@ Used parameters:
 - FFT for S1 - only plots as far
 - FFT for S2 - only plots as far
 - FFT for other peaks detected - not yet
+- spectral centroid of FFT
 - Wigner distribution of tones - not yet, not sure
 - STFT on whole signal - not yet
 - total power during systole (between end of S1 and start of S2)
-- Q-factor during systole - not yet
+- Q-factor during systole - not yet,.
 - t1 - S1 durarion
 - t2 - S2 duration
 - t12 - time between end of S1 and start of S2
@@ -33,29 +34,44 @@ class Parameters(object):
         self.peak_stops = peak_stops
             
     def s1_fft(self):
-        ffts = np.zeros((len(self.s1), len(self.signal)))
-
+        SC = []
+        
         plt.figure()
         for i in self.s1:
             signal_s1 = self.signal[self.peak_starts[i] : self.peak_stops[i]]
             FFT = abs(scipy.fft(signal_s1))
             frequencies = scipy.fftpack.fftfreq(len(signal_s1), 1.0 / self.freq)
+            SC.append(self.spectral_centroid(FFT[0: len(FFT)/2], frequencies[0: len(FFT)/2]))
 
-            plt.plot(frequencies[0: self.freq/2], abs(FFT[0: self.freq/2]))
+            plt.plot(frequencies[0: len(FFT)/2], FFT[0: len(FFT)/2])
             plt.title(i)
+        
+        return np.mean(SC)
             
     def s2_fft(self):
-        ffts = np.zeros((len(self.s2), len(self.signal)))
+        SC = []
 
         plt.figure()
         for i in self.s2:
             signal_s2 = self.signal[self.peak_starts[i] : self.peak_stops[i]]
             FFT = abs(scipy.fft(signal_s2))
             frequencies = scipy.fftpack.fftfreq(len(signal_s2), 1.0 / self.freq)
+            SC.append(self.spectral_centroid(FFT[0: len(FFT)/2], frequencies[0: len(FFT)/2]))
             
-            plt.plot(frequencies[0: self.freq/2], abs(FFT[0: self.freq/2]))
+            plt.plot(frequencies[0: len(FFT)/2], FFT[0: len(FFT)/2])
             plt.title(i)
             
+        return np.mean(SC)
+            
+    def spectral_centroid(self, FFT, frequencies):
+        spectral_centroid_nominator = 0
+        spectral_centroid_denominator = 0
+        for index in range(0, len(FFT)):
+            spectral_centroid_nominator = spectral_centroid_nominator + (frequencies[index] * FFT[index])
+            spectral_centroid_denominator = spectral_centroid_denominator + FFT[index]
+            
+        return spectral_centroid_nominator / spectral_centroid_denominator
+        
     def t1(self):
         t1s = []
         for i in self.s1:
