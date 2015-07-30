@@ -86,88 +86,103 @@ class Parameters(object):
         return np.mean(t1s)
         
     def t2(self):
-        t2s = []
-        for i in self.s2:
-            t2s.append((self.peak_stops[i] - self.peak_starts[i]) * 1.0 / self.freq)
-        return np.mean(t2s)
+        if self.signal_type == 1:
+            t2s = []
+            for i in self.s2:
+                t2s.append((self.peak_stops[i] - self.peak_starts[i]) * 1.0 / self.freq)
+            return np.mean(t2s)
+        else:
+            return -1
         
     def t12(self):
-        s1_indexes = []
-        for s1 in self.s1:
-            if (s1 + 1) in self.s2:
-                s1_indexes.append(s1)
-        t12 = []
-        for index in s1_indexes:
-            t12_candidate = (self.peak_starts[index+1] - self.peak_stops[index]) * 1.0 / self.freq
-            if t12_candidate < (60.0 / self.heart_rate):
-                t12.append(t12_candidate)
-        t12_mean = np.mean(t12)
-        return t12_mean, t12_mean * 1.0 / ( 60.0 / self.heart_rate)
+        if self.signal_type == 1:
+            s1_indexes = []
+            for s1 in self.s1:
+                if (s1 + 1) in self.s2:
+                    s1_indexes.append(s1)
+            t12 = []
+            for index in s1_indexes:
+                t12_candidate = (self.peak_starts[index+1] - self.peak_stops[index]) * 1.0 / self.freq
+                if t12_candidate < (60.0 / self.heart_rate):
+                    t12.append(t12_candidate)
+            t12_mean = np.mean(t12)
+            return t12_mean, t12_mean * 1.0 / ( 60.0 / self.heart_rate)
+        else:
+            return -1
         
     def t21(self):
-        s2_indexes = []
-        for s2 in self.s2:
-            if (s2 + 1) in self.s1:
-                s2_indexes.append(s2)
-        t21 = []
-        for index in s2_indexes:
-            t21_candidate = (self.peak_starts[index+1] - self.peak_stops[index]) * 1.0 / self.freq
-            if t21_candidate < (60.0 / self.heart_rate):
-                t21.append(t21_candidate)
-        t21_mean = np.mean(t21)
-        return t21_mean, t21_mean * 1.0 / ( 60.0 / self.heart_rate)
+        if self.signal_type == 1:
+            s2_indexes = []
+            for s2 in self.s2:
+                if (s2 + 1) in self.s1:
+                    s2_indexes.append(s2)
+            t21 = []
+            for index in s2_indexes:
+                t21_candidate = (self.peak_starts[index+1] - self.peak_stops[index]) * 1.0 / self.freq
+                if t21_candidate < (60.0 / self.heart_rate):
+                    t21.append(t21_candidate)
+            t21_mean = np.mean(t21)
+            return t21_mean, t21_mean * 1.0 / ( 60.0 / self.heart_rate)
+        else:
+            return -1
         
     def total_power_systole(self):
-        s1_indexes = []
-        for s1 in self.s1:
-            if (s1 + 1) in self.s2:
-                s1_indexes.append(s1)
-        total_powers_systole = []
-        for index in s1_indexes:
-            if (self.peak_starts[index+1] - self.peak_stops[index]) * 1.0 / self.freq < (60.0 / self.heart_rate):      
-                systole = self.signal[self.peak_stops[index] : self.peak_starts[index + 1]]
-                total_power = 0
-                for x in systole:
-                    total_power = total_power + x**2
-                half_cycle_frames = self.freq * (60.0 / self.heart_rate) / 2
-                half_cycle_frames_start = 0
-                if self.peak_stops[index] > half_cycle_frames:
-                    half_cycle_frames_start = self.peak_stops[index] - half_cycle_frames
-                cycle = self.signal[half_cycle_frames_start : self.peak_stops[index] + half_cycle_frames]           
-                total_power_cycle = 0
-                for x in cycle:
-                    total_power_cycle = total_power_cycle + x**2
-                # As percentage value of total power of the whole cycle
-                total_powers_systole.append(total_power / total_power_cycle)
-        if not total_powers_systole:
-            return 0
+        if self.signal_type == 1:
+            s1_indexes = []
+            for s1 in self.s1:
+                if (s1 + 1) in self.s2:
+                    s1_indexes.append(s1)
+            total_powers_systole = []
+            for index in s1_indexes:
+                if (self.peak_starts[index+1] - self.peak_stops[index]) * 1.0 / self.freq < (60.0 / self.heart_rate):      
+                    systole = self.signal[self.peak_stops[index] : self.peak_starts[index + 1]]
+                    total_power = 0
+                    for x in systole:
+                        total_power = total_power + x**2
+                    half_cycle_frames = self.freq * (60.0 / self.heart_rate) / 2
+                    half_cycle_frames_start = 0
+                    if self.peak_stops[index] > half_cycle_frames:
+                        half_cycle_frames_start = self.peak_stops[index] - half_cycle_frames
+                    cycle = self.signal[half_cycle_frames_start : self.peak_stops[index] + half_cycle_frames]           
+                    total_power_cycle = 0
+                    for x in cycle:
+                        total_power_cycle = total_power_cycle + x**2
+                    # As percentage value of total power of the whole cycle
+                    total_powers_systole.append(total_power / total_power_cycle)
+            if not total_powers_systole:
+                return 0
+            else:
+                total_power_mean = np.mean(total_powers_systole)
+                return total_power_mean
         else:
-            total_power_mean = np.mean(total_powers_systole)
-            return total_power_mean
+            return -1
         
     def mean12(self):
-        systole_indexes = []
-        for s1 in self.s1:
-            if (s1 + 1) in self.s2:
-                systole_indexes.append(s1)
-        systole_means = []
-        for index in systole_indexes:
-            if (self.peak_starts[index+1] - self.peak_stops[index]) * 1.0 / self.freq < (60.0 / self.heart_rate):
-                systole = self.signal[self.peak_stops[index] : self.peak_starts[index + 1]]
-                signal_mean = np.mean(systole)
-                systole_means.append(signal_mean)
-        systole_mean = np.mean(systole_means)      
-                
-        diastole_indexes = []
-        for s2 in self.s2:
-            if (s2 + 1) in self.s1:
-                diastole_indexes.append(s2)
-        diastole_means = []
-        for index in diastole_indexes:
-            if (self.peak_starts[index+1] - self.peak_stops[index]) * 1.0 / self.freq < (60.0 / self.heart_rate):
-                diastole = self.signal[self.peak_stops[index] : self.peak_starts[index + 1]]
-                signal_mean = np.mean(diastole)
-                diastole_means.append(signal_mean)
-        diastole_mean = np.mean(diastole_means)
-        
-        return max(systole_mean, diastole_mean)
+        if self.signal_type == 1:
+            systole_indexes = []
+            for s1 in self.s1:
+                if (s1 + 1) in self.s2:
+                    systole_indexes.append(s1)
+            systole_means = []
+            for index in systole_indexes:
+                if (self.peak_starts[index+1] - self.peak_stops[index]) * 1.0 / self.freq < (60.0 / self.heart_rate):
+                    systole = self.signal[self.peak_stops[index] : self.peak_starts[index + 1]]
+                    signal_mean = np.mean(systole)
+                    systole_means.append(signal_mean)
+            systole_mean = np.mean(systole_means)      
+                    
+            diastole_indexes = []
+            for s2 in self.s2:
+                if (s2 + 1) in self.s1:
+                    diastole_indexes.append(s2)
+            diastole_means = []
+            for index in diastole_indexes:
+                if (self.peak_starts[index+1] - self.peak_stops[index]) * 1.0 / self.freq < (60.0 / self.heart_rate):
+                    diastole = self.signal[self.peak_stops[index] : self.peak_starts[index + 1]]
+                    signal_mean = np.mean(diastole)
+                    diastole_means.append(signal_mean)
+            diastole_mean = np.mean(diastole_means)
+            
+            return max(systole_mean, diastole_mean)
+        else:
+            return -1
