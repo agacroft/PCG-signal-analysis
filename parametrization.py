@@ -125,6 +125,11 @@ class Parameters(object):
             return t21_mean, t21_mean * 1.0 / ( 60.0 / self.heart_rate)
         else:
             return -1
+            
+    def t_variance(self):
+        tones = self.s1 + self.s2 + self.s_unknown
+        
+        return np.std(tones)
         
     def total_power_systole(self):
         if self.signal_type == 1:
