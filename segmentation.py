@@ -33,7 +33,7 @@ def moving_average(signal_in, n = 100) :
 def shannon_energy_i(x):
     return ((-(x**2)) * (logarithm(x**2)))
     
-def envelope(signal_in, freq, n = 0.02):
+def envelope(signal_in, freq, n = 0.05):
     shannon_envelope = np.zeros(len(signal_in))
     delta_t = n
     delta_t_frame = int(delta_t * freq)
@@ -62,7 +62,7 @@ def histogram_denoising(signal_in):
 
     index = 0
     thr = 0
-    while n[index] < 0.9:
+    while n[index] < 0.94:
         thr = bins[index]
         index = index + 1
     
