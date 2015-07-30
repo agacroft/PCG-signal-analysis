@@ -43,27 +43,32 @@ class Parameters(object):
             signal_s1 = self.signal[self.peak_starts[i] : self.peak_stops[i]]
             FFT = abs(scipy.fft(signal_s1))
             frequencies = scipy.fftpack.fftfreq(len(signal_s1), 1.0 / self.freq)
+#            print self.spectral_centroid(FFT[0: len(FFT)/2], frequencies[0: len(FFT)/2])
             SC.append(self.spectral_centroid(FFT[0: len(FFT)/2], frequencies[0: len(FFT)/2]))
 
             plt.plot(frequencies[0: len(FFT)/2], FFT[0: len(FFT)/2])
-            plt.title(i)
-        
+            plt.title('S1')
+        plt.close()
         return np.mean(SC)
             
     def s2_fft(self):
-        SC = []
-
-        plt.figure()
-        for i in self.s2:
-            signal_s2 = self.signal[self.peak_starts[i] : self.peak_stops[i]]
-            FFT = abs(scipy.fft(signal_s2))
-            frequencies = scipy.fftpack.fftfreq(len(signal_s2), 1.0 / self.freq)
-            SC.append(self.spectral_centroid(FFT[0: len(FFT)/2], frequencies[0: len(FFT)/2]))
-            
-            plt.plot(frequencies[0: len(FFT)/2], FFT[0: len(FFT)/2])
-            plt.title(i)
-            
-        return np.mean(SC)
+        if self.signal_type == 1:
+            SC = []
+    
+            plt.figure()
+            for i in self.s2:
+                signal_s2 = self.signal[self.peak_starts[i] : self.peak_stops[i]]
+                FFT = abs(scipy.fft(signal_s2))
+                frequencies = scipy.fftpack.fftfreq(len(signal_s2), 1.0 / self.freq)
+    #            print self.spectral_centroid(FFT[0: len(FFT)/2], frequencies[0: len(FFT)/2])
+                SC.append(self.spectral_centroid(FFT[0: len(FFT)/2], frequencies[0: len(FFT)/2]))
+                
+                plt.plot(frequencies[0: len(FFT)/2], FFT[0: len(FFT)/2])
+                plt.title('S2')
+            plt.close()
+            return np.mean(SC)
+        else:
+            return -1
             
     def spectral_centroid(self, FFT, frequencies):
         spectral_centroid_nominator = 0
