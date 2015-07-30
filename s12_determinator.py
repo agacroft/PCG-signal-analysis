@@ -72,11 +72,23 @@ def determine_s12(starts, stops, boundaries, peaks_energy):
     
     
 # Determining s1, s2 based also on type of signal.
-def determine_s12_with_type_1(starts, stops, boundaries, peaks_energy, heart_rate, freq):
+def determine_s12_with_type_1(signal_original, starts, stops, boundaries, peaks_energy, heart_rate, freq):
     ranges_n = len(boundaries) - 1
+    peaks_max, peaks_sc = peaks_fft_parameters(signal_original, starts, stops, freq)
     
     peaks_lengths = [b - a for a,b in zip(starts, stops)]
-    peaks_weights = [0.3 * e + 0.7 * l for e,l in zip(peaks_energy, peaks_lengths)]    
+    peaks_weights2 = [0.3 * e + 0.7 * l for e,l in zip(peaks_energy, peaks_lengths)]    
+    av_peaks_max = np.mean(peaks_max)
+    av_peaks_sc = np.mean(peaks_sc)
+    av_peaks_length = np.mean(peaks_lengths)
+    for i in range(0, len(peaks_sc)):
+        if peaks_sc[i] > 250:
+            peaks_sc[i] = av_peaks_sc
+    
+    peaks_weights = [0.5 * ((av_peaks_sc - sc) / av_peaks_sc) + 0.5 * ((l - av_peaks_length) * 1.0 / av_peaks_length) for sc,l in zip(peaks_sc, peaks_lengths)]   
+    
+    for index in range(0, len(peaks_sc)):
+        print str(index) + ' ' + str(peaks_lengths[index]) + ' ' + str(peaks_sc[index]) + ' ' + str(peaks_max[index]) + ' ' + str(peaks_weights[index]) + ' ' + str(peaks_weights2[index])
     
     starts_search = np.copy(starts)
     stops_search = np.copy(stops)    
