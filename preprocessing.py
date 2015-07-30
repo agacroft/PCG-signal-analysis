@@ -55,3 +55,16 @@ def show_fft(signal_in, params):
 
     plt.plot(freq[0: params[2]/2], abs(FFT[0: params[2]/2]))
 
+def spectral_centroid(FFT, frequencies):
+        spectral_centroid_nominator = 0
+        spectral_centroid_denominator = 0
+        for index in range(0, len(FFT)):
+            spectral_centroid_nominator = spectral_centroid_nominator + (frequencies[index] * FFT[index])
+            spectral_centroid_denominator = spectral_centroid_denominator + FFT[index]
+            
+        return spectral_centroid_nominator / spectral_centroid_denominator
+
+def fft_freq(signal_in, freq):
+    FFT = abs(scipy.fft(signal_in))
+    frequencies = scipy.fftpack.fftfreq(len(signal_in), 1.0 / freq)
+    return FFT, frequencies
