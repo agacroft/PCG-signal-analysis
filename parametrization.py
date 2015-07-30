@@ -24,14 +24,16 @@ import scipy
 import matplotlib.pyplot as plt
 
 class Parameters(object):
-    def __init__(self, signal_PCG, freq, HR, S1, S2, peak_starts, peak_stops):
+    def __init__(self, signal_PCG, freq, HR, S1, S2, S, peak_starts, peak_stops, signal_type):
         self.signal = signal_PCG
         self.freq = freq
         self.heart_rate = HR
         self.s1 = S1
         self.s2 = S2
+        self.s_unknown = S
         self.peak_starts = peak_starts
         self.peak_stops = peak_stops
+        self.signal_type = signal_type
             
     def s1_fft(self):
         SC = []
