@@ -197,7 +197,32 @@ class Parameters(object):
                 total_power_mean = np.mean(total_powers_systole)
                 return total_power_mean
         else:
-            return -1
+            return -1   
+        
+    def energy(self, signal_in):
+        return [x**2 for x in signal_in]        
+        
+    def breaks_power(self):
+        tones_indexes = self.s1 + self.s2 + self.s_unknown
+        tones_indexes.sort()
+        breaks_powers = []
+        breaks_powers_percentage = []
+        cycle_length = int(60.0 * self.freq / self.heart_rate)
+        
+        for index in range(0, len(tones_indexes) - 1):
+            if tones_indexes[index + 1] == tones_indexes[index] + 1:
+                break_start = self.peak_stops[index]
+                break_stop = self.peak_starts[index + 1]
+                break_length = break_stop - break_start
+                if break_length < cycle_length:
+                    break_signal = self.signal[break_start : break_stop]
+                    break_power = sum(self.energy(break_signal))
+                    cycle = self.signal[break_start : break_start + cycle_length]
+                    cycle_power = sum(self.energy(cycle))
+                    breaks_powers.append(break_power)
+                    breaks_powers_percentage.append(break_power * 1.0 / cycle_power)
+        
+        return np.mean(breaks_powers), np.mean(breaks_powers_percentage)
         
     def mean12(self):
         if self.signal_type == 1:
