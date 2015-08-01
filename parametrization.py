@@ -16,6 +16,11 @@ Used parameters:
 - t21 - time between end of S2 and start of next S1
 - mean12 - maximum of means in regions between S1 - S2 and S2 - S1
 
+New parameters:
+- variance of tones duration
+- FFT parameters of sections between tones
+- mean energy of sections between tones (as a percentage of whole cycle energy)
+
 @author: Agnieszka Kaczmarczyk
 """
 
@@ -87,8 +92,6 @@ class Parameters(object):
 #                plt.plot(frequencies[0: len(FFT)/2], FFT[0: len(FFT)/2])
 #                plt.title('break')
 #            plt.close()
-            print 'breaks fft: '
-            print SC
             return np.mean(SC)
         else:
             return -1
