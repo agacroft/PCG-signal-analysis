@@ -152,8 +152,21 @@ class Parameters(object):
             
     def t_variance(self):
         tones = self.s1 + self.s2 + self.s_unknown
+        tones_times = []
+        for index in range(0, len(tones)):
+            tones_times.append(self.peak_stops[index] - self.peak_starts[index])
         
-        return np.std(tones)
+        return np.std(tones_times)
+        
+    def tones_mean(self):
+        tones = self.s1 + self.s2 + self.s_unknown
+        tones_times = []
+        for index in range(0, len(tones)):
+            tones_times.append(self.peak_stops[index] - self.peak_starts[index])        
+        tones_mean = np.mean(tones_times)
+        tones_mean_percentage = tones_mean * 1.0 / (60.0 * self.freq/ self.heart_rate)
+        
+        return tones_mean, tones_mean_percentage
         
     def total_power_systole(self):
         if self.signal_type == 1:
