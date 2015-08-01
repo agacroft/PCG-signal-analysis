@@ -10,32 +10,12 @@ import numpy as np
 import scipy
 import cv2
 from scipy import ndimage
-import wave_operations as wo
-import preprocessing as pr
-import segmentation as segm
 import stft_module as stft
-import os
-from os import listdir
-from os.path import isfile, join
 
 plt.close('all')
 freq = 4000
 
-my_path = os.getcwd() + '\\image'
-wave_files = [ f for f in listdir(my_path) if isfile(join(my_path,f)) ]
-
-for wave_file in wave_files[0:50]:
-    wave_file_path = my_path + '\\' + wave_file
-    print wave_file_path
-    signal_PCG, params = wo.read_wavefile(wave_file_path)
-    signal_PCG[0 : int(params[2] * 0.3)] = 0
-    signal_PCG[len(signal_PCG) - int(params[2] * 0.3) : ] = 0
-    
-    # Preprocessing of the signal: filtering.
-    cutoff = 195
-    signal_PCG = pr.butter_lowpass_filter(signal_PCG, cutoff, freq, 2)
-    # Preprocessing of the signal: decimation.
-    signal_PCG = pr.decimate(signal_PCG, params, freq)
+def murmurs(signal_PCG, freq):
 				
     X = stft.stft2(signal_PCG, freq, 0.06, 0.02)
     # Create matrix A as absolute normalized X.
@@ -50,7 +30,6 @@ for wave_file in wave_files[0:50]:
     
     maximum = A.max()
     A = A * (1.0 / maximum) 
-    print np.mean(A)
     
     plt.figure()
     plt.imshow(A, origin='lower', aspect='auto',
@@ -59,7 +38,7 @@ for wave_file in wave_files[0:50]:
     plt.ylabel('Frequency')
     plt.show()    
     
-    thresh = cv2.threshold(A.astype('float32'), 22 * np.mean(A), 1,cv2.THRESH_BINARY) 
+    thresh = cv2.threshold(A.astype('float32'), 18 * np.mean(A), 1,cv2.THRESH_BINARY) 
     
     plt.figure()
     plt.imshow(thresh[1], origin='lower', aspect='auto',
@@ -90,7 +69,6 @@ for wave_file in wave_files[0:50]:
     
     cols = len(B[0])
     rows = len(B)
-    sums = np.zeros(cols)
     for row in range(0, rows):
         for col in range(0, cols):
             if B[row][col] == 1:
@@ -108,7 +86,7 @@ for wave_file in wave_files[0:50]:
     plt.ylabel('Frequency')
     plt.show()   
     
-    thresh2 = cv2.threshold(A.astype('float32'), 2 * np.mean(A), 20 * np.mean(A),cv2.THRESH_BINARY) 
+    thresh2 = cv2.threshold(A.astype('float32'), 2 * np.mean(A), 18 * np.mean(A),cv2.THRESH_BINARY) 
     
     # Create matrix E as high frequencies between peaks.
     E = thresh2[1] - C - D
@@ -119,6 +97,25 @@ for wave_file in wave_files[0:50]:
         for col in range(0, cols):
             if E[row][col] < 0:
                 E[row][col] = 0
+
+    E = ndimage.binary_dilation(E).astype(E.dtype)
+    E = ndimage.binary_closing(E).astype(E.dtype)
+
+    E2, contours, hierarchy = cv2.findContours(E.astype(np.uint8),cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+    cv2.drawContours(E2, contours, -1, (0,255,0), 3)    
+    
+    cx = []
+    cy = []
+    areas = []
+    for cnt in contours:
+        M = cv2.moments(cnt)
+        cx.append(int(M['m10']/M['m00']))
+        cy.append(int(M['m01']/M['m00']))
+        areas.append(cv2.contourArea(cnt))
+        
+    print cx
+    print cy
+    print areas
     
     plt.figure()
     plt.imshow(E, origin='lower', aspect='auto',
@@ -127,24 +124,5 @@ for wave_file in wave_files[0:50]:
     plt.ylabel('Frequency')
     plt.show()     
     
-    continue    
+    return E
     
-    A = ndimage.binary_dilation(A).astype(A.dtype)
-    
-    plt.figure()
-    plt.imshow(A, origin='lower', aspect='auto',
-                 interpolation='nearest')
-    plt.xlabel('Time')
-    plt.ylabel('Frequency')
-    plt.show()    
-    
-    # Preprocessing of the signal: normalization.
-    signal_PCG = pr.normalize(signal_PCG)
-    
-    signal_PCG_original = np.copy(signal_PCG)
-    
-    # Denoising histogram using histogram method.
-    signal_PCG = segm.histogram_denoising(signal_PCG)
-    
-    # Determine heart rate.
-    heart_rate = segm.heart_rate(signal_PCG, freq) 
