@@ -89,8 +89,8 @@ def determine_s12_with_type_1(signal_original, starts, stops, boundaries, peaks_
     
     peaks_weights = [0.5 * ((av_peaks_sc - sc) / av_peaks_sc) + 0.5 * ((l - av_peaks_length) * 1.0 / av_peaks_length) for sc,l in zip(peaks_sc, peaks_lengths)]   
     
-    for index in range(0, len(peaks_sc)):
-        print str(index) + ' ' + str(peaks_lengths[index]) + ' ' + str(peaks_sc[index]) + ' ' + str(peaks_max[index]) + ' ' + str(peaks_weights[index]) + ' ' + str(peaks_weights2[index])
+#    for index in range(0, len(peaks_sc)):
+#        print str(index) + ' ' + str(peaks_lengths[index]) + ' ' + str(peaks_sc[index]) + ' ' + str(peaks_max[index]) + ' ' + str(peaks_weights[index]) + ' ' + str(peaks_weights2[index])
     
     starts_search = np.copy(starts)
     stops_search = np.copy(stops)    
