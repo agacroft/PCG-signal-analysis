@@ -105,17 +105,15 @@ def murmurs(signal_PCG, freq):
     cv2.drawContours(E2, contours, -1, (0,255,0), 3)    
     
     cx = []
-    cy = []
-    areas = []
     for cnt in contours:
-        M = cv2.moments(cnt)
-        cx.append(int(M['m10']/M['m00']))
-        cy.append(int(M['m01']/M['m00']))
-        areas.append(cv2.contourArea(cnt))
+        area = cv2.contourArea(cnt)
+        if area > 5.0:
+            M = cv2.moments(cnt)
+            cx.append(int(M['m10']/M['m00']))
         
-    print cx
-    print cy
-    print areas
+    tx = []
+    for index in range(0, len(cx)):
+        tx.append(cx[index] * 0.02 + 0.03)
     
     plt.figure()
     plt.imshow(E, origin='lower', aspect='auto',
@@ -124,5 +122,5 @@ def murmurs(signal_PCG, freq):
     plt.ylabel('Frequency')
     plt.show()     
     
-    return E
+    return tx
     
