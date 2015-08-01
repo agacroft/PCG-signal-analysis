@@ -38,7 +38,7 @@ class Parameters(object):
     def s1_fft(self):
         SC = []
         
-        plt.figure()
+#        plt.figure()
         for i in self.s1:
             signal_s1 = self.signal[self.peak_starts[i] : self.peak_stops[i]]
             FFT = abs(scipy.fft(signal_s1))
@@ -46,16 +46,16 @@ class Parameters(object):
 #            print self.spectral_centroid(FFT[0: len(FFT)/2], frequencies[0: len(FFT)/2])
             SC.append(self.spectral_centroid(FFT[0: len(FFT)/2], frequencies[0: len(FFT)/2]))
 
-            plt.plot(frequencies[0: len(FFT)/2], FFT[0: len(FFT)/2])
-            plt.title('S1')
-        plt.close()
+#            plt.plot(frequencies[0: len(FFT)/2], FFT[0: len(FFT)/2])
+#            plt.title('S1')
+#        plt.close()
         return np.mean(SC)
             
     def s2_fft(self):
         if self.signal_type == 1:
             SC = []
     
-            plt.figure()
+#            plt.figure()
             for i in self.s2:
                 signal_s2 = self.signal[self.peak_starts[i] : self.peak_stops[i]]
                 FFT = abs(scipy.fft(signal_s2))
@@ -63,12 +63,36 @@ class Parameters(object):
     #            print self.spectral_centroid(FFT[0: len(FFT)/2], frequencies[0: len(FFT)/2])
                 SC.append(self.spectral_centroid(FFT[0: len(FFT)/2], frequencies[0: len(FFT)/2]))
                 
-                plt.plot(frequencies[0: len(FFT)/2], FFT[0: len(FFT)/2])
-                plt.title('S2')
-            plt.close()
+#                plt.plot(frequencies[0: len(FFT)/2], FFT[0: len(FFT)/2])
+#                plt.title('S2')
+#            plt.close()
             return np.mean(SC)
         else:
             return -1
+            
+    def breaks_fft(self):
+        if self.signal_type == 1:
+            SC = []
+            tones = self.s1 + self.s2 + self.s_unknown
+            tones.sort()
+    
+            for i in tones[0 : len(tones) - 1]:
+                signal_break = self.signal[self.peak_stops[i] : self.peak_starts[i + 1]]
+                FFT = abs(scipy.fft(signal_break))
+                frequencies = scipy.fftpack.fftfreq(len(signal_break), 1.0 / self.freq)
+    #            print self.spectral_centroid(FFT[0: len(FFT)/2], frequencies[0: len(FFT)/2])
+                SC.append(self.spectral_centroid(FFT[0: len(FFT)/2], frequencies[0: len(FFT)/2]))
+                
+#                plt.figure()
+#                plt.plot(frequencies[0: len(FFT)/2], FFT[0: len(FFT)/2])
+#                plt.title('break')
+#            plt.close()
+            print 'breaks fft: '
+            print SC
+            return np.mean(SC)
+        else:
+            return -1
+                
             
     def spectral_centroid(self, FFT, frequencies):
         spectral_centroid_nominator = 0
