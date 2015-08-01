@@ -109,7 +109,10 @@ def threshold_with_custom_threshold(signal, freq, heart_rate, threshold):
             under = under + 1
             if is_above == True:
                 is_above = False
-                endings.append(i)
+                if (i - begginings[len(begginings) - 1]) > (freq * 0.02):
+                    endings.append(i)
+                else:
+                    del begginings[-1]
         else:
             if is_above == False:
                 is_above = True
