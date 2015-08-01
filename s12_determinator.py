@@ -83,9 +83,9 @@ def determine_s12_with_type_1(signal_original, starts, stops, boundaries, peaks_
     av_peaks_max = np.mean(peaks_max)
     av_peaks_sc = np.mean(peaks_sc)
     av_peaks_length = np.mean(peaks_lengths)
-    for i in range(0, len(peaks_sc)):
-        if peaks_sc[i] > 250:
-            peaks_sc[i] = av_peaks_sc
+#    for i in range(0, len(peaks_sc)):
+#        if peaks_sc[i] > 250:
+#            peaks_sc[i] = av_peaks_sc
     
     peaks_weights = [0.5 * ((av_peaks_sc - sc) / av_peaks_sc) + 0.5 * ((l - av_peaks_length) * 1.0 / av_peaks_length) for sc,l in zip(peaks_sc, peaks_lengths)]   
     
@@ -123,19 +123,43 @@ def determine_s12_with_type_1(signal_original, starts, stops, boundaries, peaks_
                 stop_index = i - 1
             else:
                 i = i + 1
-   
+
         if stop_index - start_index >= 1:
+            s12_candidates = []
             s1_index = np.argmax(peaks_weights[start_index : stop_index + 1], axis = 0) + start_index  
-            s1.append(s1_index)
+#            s1.append(s1_index)
+            s12_candidates.append(s1_index)
             peaks_weights[s1_index] = -2
             s2_index = np.argmax(peaks_weights[start_index : stop_index + 1], axis = 0) + start_index           
-            s2.append(s2_index)
+#            s2.append(s2_index)
+            s12_candidates.append(s2_index)
             peaks_weights[s2_index] = -2
+            s1_index, s2_index = time_diff_between_peaks(starts, stops, s12_candidates, freq, heart_rate)
+            s1.append(s1_index)
+            s2.append(s2_index)
+    
         elif start_index == stop_index and start_index > -1:
             s12.append(start_index)
             peaks_weights[start_index] = -2
         
     return s1, s2, s12
+
+def time_diff_between_peaks(starts, stops, s12_candidates, freq, heart_rate):
+    s1_index = s12_candidates[0]
+    s2_index = s12_candidates[1]
+    cycle_time_frames = 60.0 * freq / heart_rate 
+    s12_candidates.sort()
+    s1_time_frames = stops[s12_candidates[0]] - starts[s12_candidates[0]]
+    s2_time_frames = stops[s12_candidates[1]] - starts[s12_candidates[1]]
+    breaks_sum_time = cycle_time_frames - s1_time_frames - s2_time_frames
+    break_time = starts[s12_candidates[1]] - stops[s12_candidates[0]]
+    if break_time < breaks_sum_time * 0.45:
+        s1_index = s12_candidates[0]
+        s2_index = s12_candidates[1]
+    elif break_time > breaks_sum_time * 0.55:
+        s1_index = s12_candidates[1]
+        s2_index = s12_candidates[0]
+    return s1_index, s2_index
     
 # Determining s1, s2 based also on type of signal.
 def determine_s1_with_type_2(starts, stops, boundaries, peaks_energy, heart_rate, freq):
@@ -187,7 +211,7 @@ def peaks_fft_parameters(signal, starts, stops, freq):
     peaks_max_frequencies = []
     peaks_spectral_centroids = []
     for peak_index in range(0, n):
-        peak_length_accuracy = int(0.1 * (stops[peak_index] - starts[peak_index]))
+#        peak_length_accuracy = int(0.1 * (stops[peak_index] - starts[peak_index]))
         peak_start = starts[peak_index] #+ peak_length_accuracy
         peak_stop = stops[peak_index]# + peak_length_accuracy
         FFT, frequencies = pr.fft_freq(signal[peak_start : peak_stop], freq)
