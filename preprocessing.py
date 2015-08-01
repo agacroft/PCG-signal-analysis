@@ -67,4 +67,8 @@ def spectral_centroid(FFT, frequencies):
 def fft_freq(signal_in, freq):
     FFT = abs(scipy.fft(signal_in))
     frequencies = scipy.fftpack.fftfreq(len(signal_in), 1.0 / freq)
+				
+#    plt.figure()
+#    plt.plot(frequencies[0: len(FFT)/2], FFT[0: len(FFT)/2])
+
     return FFT, frequencies
