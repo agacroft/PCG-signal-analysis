@@ -24,7 +24,7 @@ freq = 4000
 my_path = os.getcwd() + '\\image'
 wave_files = [ f for f in listdir(my_path) if isfile(join(my_path,f)) ]
 
-for wave_file in wave_files[9:10]:
+for wave_file in wave_files[0:1]:
     wave_file_path = my_path + '\\' + wave_file
     print wave_file_path
     signal_PCG, params = wo.read_wavefile(wave_file_path)
@@ -39,8 +39,9 @@ for wave_file in wave_files[9:10]:
     # Preprocessing of the signal: decimation.
     signal_PCG = pr.decimate(signal_PCG, params, freq)
 				
-    murmur_candidates_t = mur.murmurs(signal_PCG, freq)
-#    continue
+    # Prepare signal for STFT transformations.
+    signal_to_stft = np.copy(signal_PCG)
+
     # Preprocessing of the signal: normalization.
     signal_PCG = pr.normalize(signal_PCG)
     
@@ -75,16 +76,8 @@ for wave_file in wave_files[9:10]:
         s1 = s12.determine_s1_with_type_2(starts, stops, boundaries, peaks_energy, heart_rate, freq)
         
     # Check murmur candidates time with peaks time.
-    tones = s1 + s2 + s
-    murmur_candidates_t.sort()
-    tones.sort()
-    tones_t = []
-    for tone in tones:
-        tones_t.append((starts[tone] + (stops[tone] - starts[tone])/2) * 1.0 / freq)
-    
-    print ["%0.2f" % i for i in tones_t]
-    print ["%0.2f" % i for i in murmur_candidates_t]
-    
+    murmur_candidates_t = mur.murmurs(signal_to_stft, freq, starts, stops, s1, s2, s, heart_rate)
+
     # Parametrization of signal.        
     parameters = Parameters(signal_PCG_original, freq, heart_rate, s1, s2, s, starts, stops, signal_type)   
     t1 = parameters.t1()
@@ -100,18 +93,18 @@ for wave_file in wave_files[9:10]:
     breaks, percentage = parameters.breaks_power()
     breaks_sc = parameters.breaks_fft()
         
-    print 't1: ' + str(t1)
-    print 't2: ' + str(t2)
-    print 't12: ' + str(t12)
-    print 't21: ' + str(t21)
-    print 'total_power_systole: ' + str(total_power_systole)
-    print 'mean12: ' + str(mean12)
-    print 'sc1: ' + str(sc1)
-    print 'sc2: ' + str(sc2)
-    print 'tones std: ' + str(tones_std)
-    print 'tones mean: ' + str(tones_mean) + ' ' + str(tones_mean_p)
-    print 'breaks: ' + str(breaks) + ' ' + str(percentage)
-    print 'breaks_sc: ' + str(breaks_sc)
+#    print 't1: ' + str(t1)
+#    print 't2: ' + str(t2)
+#    print 't12: ' + str(t12)
+#    print 't21: ' + str(t21)
+#    print 'total_power_systole: ' + str(total_power_systole)
+#    print 'mean12: ' + str(mean12)
+#    print 'sc1: ' + str(sc1)
+#    print 'sc2: ' + str(sc2)
+#    print 'tones std: ' + str(tones_std)
+#    print 'tones mean: ' + str(tones_mean) + ' ' + str(tones_mean_p)
+#    print 'breaks: ' + str(breaks) + ' ' + str(percentage)
+#    print 'breaks_sc: ' + str(breaks_sc)
         
 #     Plotting results: original signal with visualized cycles boundaries and 
 #     tones; signal after histogram cleaning; Shannon Energy Envelope  

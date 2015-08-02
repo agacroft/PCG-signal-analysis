@@ -15,7 +15,7 @@ import stft_module as stft
 plt.close('all')
 freq = 4000
 
-def murmurs(signal_PCG, freq):
+def murmurs(signal_PCG, freq, starts, stops, s1, s2, s, heart_rate):
 				
     X = stft.stft2(signal_PCG, freq, 0.06, 0.02)
     # Create matrix A as absolute normalized X.
@@ -40,12 +40,12 @@ def murmurs(signal_PCG, freq):
     
     thresh = cv2.threshold(A.astype('float32'), 18 * np.mean(A), 1,cv2.THRESH_BINARY) 
     
-    plt.figure()
-    plt.imshow(thresh[1], origin='lower', aspect='auto',
-                 interpolation='nearest')
-    plt.xlabel('Time')
-    plt.ylabel('Frequency')
-    plt.show()    
+#    plt.figure()
+#    plt.imshow(thresh[1], origin='lower', aspect='auto',
+#                 interpolation='nearest')
+#    plt.xlabel('Time')
+#    plt.ylabel('Frequency')
+#    plt.show()    
 
     # Create matrix B as peaks determinator.
     B = np.copy(thresh[1])
@@ -60,12 +60,12 @@ def murmurs(signal_PCG, freq):
     D = ndimage.binary_dilation(D).astype(B.dtype)
     D = ndimage.binary_dilation(D).astype(B.dtype)
     
-    plt.figure()
-    plt.imshow(D, origin='lower', aspect='auto',
-                 interpolation='nearest')
-    plt.xlabel('Time')
-    plt.ylabel('Frequency')
-    plt.show()
+#    plt.figure()
+#    plt.imshow(D, origin='lower', aspect='auto',
+#                 interpolation='nearest')
+#    plt.xlabel('Time')
+#    plt.ylabel('Frequency')
+#    plt.show()
     
     cols = len(B[0])
     rows = len(B)
@@ -79,12 +79,12 @@ def murmurs(signal_PCG, freq):
     C = ndimage.binary_dilation(C).astype(B.dtype)  
     C = ndimage.binary_dilation(C).astype(B.dtype) 
     
-    plt.figure()
-    plt.imshow(C, origin='lower', aspect='auto',
-                 interpolation='nearest')
-    plt.xlabel('Time')
-    plt.ylabel('Frequency')
-    plt.show()   
+#    plt.figure()
+#    plt.imshow(C, origin='lower', aspect='auto',
+#                 interpolation='nearest')
+#    plt.xlabel('Time')
+#    plt.ylabel('Frequency')
+#    plt.show()   
     
     thresh2 = cv2.threshold(A.astype('float32'), 2 * np.mean(A), 18 * np.mean(A),cv2.THRESH_BINARY) 
     
@@ -122,5 +122,24 @@ def murmurs(signal_PCG, freq):
     plt.ylabel('Frequency')
     plt.show()     
     
+    murmur_candidates_t = np.copy(tx)
+    murmur_candidates_t.sort()
+    tones_t = calculate_tone_times(starts, stops, s1, s2, s)
+    
+    print ["%0.2f" % i for i in tones_t]
+    print ["%0.2f" % i for i in murmur_candidates_t]    
+    
     return tx
+    
+    
+def calculate_tone_times(starts, stops, s1, s2, s):
+    tones = s1 + s2 + s
+    tones.sort()
+    tones_t = []
+    for tone in tones:
+        tones_t.append((starts[tone] + (stops[tone] - starts[tone])/2) * 1.0 / freq)
+        
+    return tones_t
+    
+#def remove_peaks_from_candidates():
     
