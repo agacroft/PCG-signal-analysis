@@ -90,7 +90,7 @@ def murmurs(signal_PCG, freq, starts, stops, s1, s2, s, heart_rate):
     
     # Create matrix E as high frequencies between peaks.
     E = thresh2[1] - C - D
-    E[0:3, :] = 0
+    E[0:6, :] = 0
     cols = len(E[0])
     rows = len(E)
     for row in range(0, rows):
@@ -152,7 +152,7 @@ def remove_peaks_from_candidates(tones_t, candidates_t):
     for t in candidates_t:
         is_peak = False
         for peak_t in tones_t:
-            if abs(peak_t - t) < 0.08:
+            if abs(peak_t - t) < 0.05:
                 is_peak = True
         if is_peak == False:
             murmurs_t.append(t)
