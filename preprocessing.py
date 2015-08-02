@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 def decimate(signal_in, params, f_k):
     f_p = params[2]
     n = (int)(f_p / f_k)
-    signal_len = (int)(params[3] / n)
+    signal_len = (int)(len(signal_in) / n)
     
     signal_out = np.zeros(signal_len)
     
