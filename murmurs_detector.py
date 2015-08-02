@@ -126,8 +126,14 @@ def murmurs(signal_PCG, freq, starts, stops, s1, s2, s, heart_rate):
     murmur_candidates_t.sort()
     tones_t = calculate_tone_times(starts, stops, s1, s2, s)
     
+    print 'tones times:'
     print ["%0.2f" % i for i in tones_t]
+    print 'murmur candidates times:'
     print ["%0.2f" % i for i in murmur_candidates_t]    
+    
+    murmur_candidates_t = remove_peaks_from_candidates(tones_t, murmur_candidates_t)
+    print 'murmur candidates times:'
+    print ["%0.2f" % i for i in murmur_candidates_t]  
     
     return tx
     
@@ -141,5 +147,14 @@ def calculate_tone_times(starts, stops, s1, s2, s):
         
     return tones_t
     
-#def remove_peaks_from_candidates():
-    
+def remove_peaks_from_candidates(tones_t, candidates_t):
+    murmurs_t = []
+    for t in candidates_t:
+        is_peak = False
+        for peak_t in tones_t:
+            if abs(peak_t - t) < 0.08:
+                is_peak = True
+        if is_peak == False:
+            murmurs_t.append(t)
+            
+    return murmurs_t
