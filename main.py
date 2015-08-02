@@ -24,7 +24,7 @@ freq = 4000
 my_path = os.getcwd() + '\\image'
 wave_files = [ f for f in listdir(my_path) if isfile(join(my_path,f)) ]
 
-for wave_file in wave_files[0:1]:
+for wave_file in wave_files[9:10]:
     wave_file_path = my_path + '\\' + wave_file
     print wave_file_path
     signal_PCG, params = wo.read_wavefile(wave_file_path)
@@ -39,8 +39,8 @@ for wave_file in wave_files[0:1]:
     # Preprocessing of the signal: decimation.
     signal_PCG = pr.decimate(signal_PCG, params, freq)
 				
-    E = mur.murmurs(signal_PCG, freq)
-    
+    murmur_candidates_t = mur.murmurs(signal_PCG, freq)
+#    continue
     # Preprocessing of the signal: normalization.
     signal_PCG = pr.normalize(signal_PCG)
     
@@ -73,8 +73,19 @@ for wave_file in wave_files[0:1]:
     
     elif signal_type == 2:
         s1 = s12.determine_s1_with_type_2(starts, stops, boundaries, peaks_energy, heart_rate, freq)
-        # Parametrization of signal.
         
+    # Check murmur candidates time with peaks time.
+    tones = s1 + s2 + s
+    murmur_candidates_t.sort()
+    tones.sort()
+    tones_t = []
+    for tone in tones:
+        tones_t.append((starts[tone] + (stops[tone] - starts[tone])/2) * 1.0 / freq)
+    
+    print ["%0.2f" % i for i in tones_t]
+    print ["%0.2f" % i for i in murmur_candidates_t]
+    
+    # Parametrization of signal.        
     parameters = Parameters(signal_PCG_original, freq, heart_rate, s1, s2, s, starts, stops, signal_type)   
     t1 = parameters.t1()
     t2 = parameters.t2()
