@@ -120,7 +120,7 @@ def threshold_with_custom_threshold(signal, freq, heart_rate, threshold):
         i = i + 1
     begginings, endings = investigate_tone_boundaries(begginings, endings)
     n = len(begginings)
-    rate = (n + 2) / (len(signal) * 1.0/ freq) * 30
+    rate = (n) / (len(signal) * 1.0/ freq) * 30
         
     print str(threshold) + ': ' + str(under * 1.0 / len(signal)) + ' ' + str(n) + ' ' + str(rate)    
           
