@@ -138,7 +138,7 @@ def determine_s12_with_type_1(signal_original, starts, stops, boundaries, peaks_
             s1.append(s1_index)
             s2.append(s2_index)
     
-        elif start_index == stop_index and start_index > -1:
+        elif start_index == stop_index and start_index > -1 and peaks_weights[start_index] != -2:
             s12.append(start_index)
             peaks_weights[start_index] = -2
         
