@@ -21,21 +21,19 @@ from os.path import isfile, join
 plt.close('all')
 freq = 4000
 
-my_path = os.getcwd() + '\\image'
+my_path = os.getcwd() + '\\test'
 wave_files = [ f for f in listdir(my_path) if isfile(join(my_path,f)) ]
 
-for wave_file in wave_files[0:1]:
+for wave_file in wave_files[:]:
     wave_file_path = my_path + '\\' + wave_file
     print wave_file_path
     signal_PCG, params = wo.read_wavefile(wave_file_path)
 				
     # Preprocessing of the signal: removing beginnings and endings of signal.
-    signal_PCG[0 : int(params[2] * 0.3)] = 0
-    signal_PCG[len(signal_PCG) - int(params[2] * 0.3) : ] = 0
-    
+    signal_PCG = signal_PCG[(int(params[2] * 0.3)) : (len(signal_PCG) - int(params[2] * 0.3))]
     # Preprocessing of the signal: filtering.
-#    cutoff = 195
-#    signal_PCG = pr.butter_lowpass_filter(signal_PCG, cutoff, freq, 1)
+    cutoff = 195
+    signal_PCG = pr.butter_lowpass_filter(signal_PCG, cutoff, freq, 1)
     # Preprocessing of the signal: decimation.
     signal_PCG = pr.decimate(signal_PCG, params, freq)
 				
@@ -93,18 +91,18 @@ for wave_file in wave_files[0:1]:
     breaks, percentage = parameters.breaks_power()
     breaks_sc = parameters.breaks_fft()
         
-#    print 't1: ' + str(t1)
-#    print 't2: ' + str(t2)
-#    print 't12: ' + str(t12)
-#    print 't21: ' + str(t21)
-#    print 'total_power_systole: ' + str(total_power_systole)
-#    print 'mean12: ' + str(mean12)
-#    print 'sc1: ' + str(sc1)
-#    print 'sc2: ' + str(sc2)
-#    print 'tones std: ' + str(tones_std)
-#    print 'tones mean: ' + str(tones_mean) + ' ' + str(tones_mean_p)
-#    print 'breaks: ' + str(breaks) + ' ' + str(percentage)
-#    print 'breaks_sc: ' + str(breaks_sc)
+    print 't1: ' + str(t1)
+    print 't2: ' + str(t2)
+    print 't12: ' + str(t12)
+    print 't21: ' + str(t21)
+    print 'total_power_systole: ' + str(total_power_systole)
+    print 'mean12: ' + str(mean12)
+    print 'sc1: ' + str(sc1)
+    print 'sc2: ' + str(sc2)
+    print 'tones std: ' + str(tones_std)
+    print 'tones mean: ' + str(tones_mean) + ' ' + str(tones_mean_p)
+    print 'breaks: ' + str(breaks) + ' ' + str(percentage)
+    print 'breaks_sc: ' + str(breaks_sc)
         
 #     Plotting results: original signal with visualized cycles boundaries and 
 #     tones; signal after histogram cleaning; Shannon Energy Envelope  
