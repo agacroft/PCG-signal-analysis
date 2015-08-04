@@ -20,7 +20,7 @@ def murmurs(signal_PCG, freq, starts, stops, s1, s2, s, heart_rate):
     X = stft.stft2(signal_PCG, freq, 0.06, 0.02)
     # Create matrix A as absolute normalized X.
     A = X[:][:]
-    
+   
     v = len(A[0])
     for i in range(0, int(v * 5.0 / 6)):
         A = scipy.delete(A, int(v * 1.0 / 6), 1)  
@@ -49,6 +49,10 @@ def murmurs(signal_PCG, freq, starts, stops, s1, s2, s, heart_rate):
 
     # Create matrix B as peaks determinator.
     B = np.copy(thresh[1])
+    B_rows = []
+    for rows in B:
+        B_rows.append(sum(rows))
+    y_max = B_rows.index(max(B_rows))
     
     # Create matrix D as dilated matrix B.    
     D = ndimage.binary_dilation(B).astype(B.dtype)   
@@ -77,7 +81,7 @@ def murmurs(signal_PCG, freq, starts, stops, s1, s2, s, heart_rate):
     # Create matrix C as peaks lines centers.
     C = ndimage.binary_dilation(B).astype(B.dtype)   
     C = ndimage.binary_dilation(C).astype(B.dtype)  
-    C = ndimage.binary_dilation(C).astype(B.dtype) 
+#    C = ndimage.binary_dilation(C).astype(B.dtype) 
     
 #    plt.figure()
 #    plt.imshow(C, origin='lower', aspect='auto',
@@ -90,7 +94,7 @@ def murmurs(signal_PCG, freq, starts, stops, s1, s2, s, heart_rate):
     
     # Create matrix E as high frequencies between peaks.
     E = thresh2[1] - C - D
-    E[0:6, :] = 0
+    E[0:(y_max + 2), :] = 0
     cols = len(E[0])
     rows = len(E)
     for row in range(0, rows):
@@ -135,7 +139,16 @@ def murmurs(signal_PCG, freq, starts, stops, s1, s2, s, heart_rate):
     print 'murmur candidates times:'
     print ["%0.2f" % i for i in murmur_candidates_t]  
     
-    return tx
+    murmur_candidates_t = merge_too_close_candidates(murmur_candidates_t, heart_rate)   
+ 
+    t_diff = []
+    if len(murmur_candidates_t) > 1:
+        for i in range(0, len(murmur_candidates_t) - 1):
+            t_diff.append(murmur_candidates_t[i+1] - murmur_candidates_t[i])
+#    print t_diff
+#    print np.std(t_diff)
+    
+    return murmur_candidates_t
     
     
 def calculate_tone_times(starts, stops, s1, s2, s):
@@ -157,4 +170,24 @@ def remove_peaks_from_candidates(tones_t, candidates_t):
         if is_peak == False:
             murmurs_t.append(t)
             
+    return murmurs_t
+    
+def merge_too_close_candidates(candidates_t, heart_rate):
+    murmurs_t = np.copy(candidates_t)
+    
+    t_diff = []
+    if len(murmurs_t) > 1:
+        for i in range(0, len(murmurs_t) - 1):
+            t_diff.append(murmurs_t[i+1] - murmurs_t[i])
+    indexes = []
+    for index in range(0, len(t_diff)):
+        if t_diff[index] < 0.08:
+            indexes.append(index)
+    for i in range(0, len(indexes)):
+        murmurs_t[indexes[i]] = (murmurs_t[indexes[i]] + murmurs_t[indexes[i]+1])/2
+        murmurs_t = np.delete(murmurs_t, indexes[i]+1)       
+        if i < len(indexes) - 1:
+            for ii in range(i+1, len(indexes)):
+                indexes[ii] = indexes[ii] - 1
+                
     return murmurs_t
